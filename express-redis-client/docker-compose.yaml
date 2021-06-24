@@ -1,6 +1,8 @@
 version: "3"
 services:
   redis-client:
+    image: kofeebrian/redis-client:v1
+    container_name: redis-client
     build:
       context: ./app
     depends_on:
@@ -8,16 +10,8 @@ services:
     environment:
       - REDIS_PORT=6379
 
-  nginx-redis-client:
-    restart: always
-    build:
-      context: ./nginx
-    ports:
-      - 3001:80
-    links:
-      - redis-client
-
   redis:
     image: redis
+    container_name: redis
     ports:
       - 6379:6379

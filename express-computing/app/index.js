@@ -15,11 +15,36 @@ app.get(`/`, (req, res) => {
  * @description Count 'word' in the given string
  * @returns a number of 'word' in the string
  */
-app.post(`/`, (req, res) => {
+app.post(`/`, async (req, res) => {
 	const { text, word } = req.body;
-	if (!text || !word) res.status(400).json({ text, word, result: null, message: "Bad request" });
+	if (!text || !word)
+		return res.status(400).json({ text, word, result: null, message: "Bad request" });
 
-	const result = text.match(new RegExp(word, "g")).length;
+	let result;
+	result = await fetch(`http:redis-client/${text}`);
+	result = result.json();
+	if (result?.data) {
+		res.status(200).json({
+			message: "From cache",
+			text,
+			word,
+			result: result.data,
+		});
+	}
+
+	result = text.match(new RegExp(word, "g")).length;
+
+	await fetch(`http:redis-client/`, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({
+			key: text,
+			value: result,
+		}),
+	});
+
 	res.status(200).json({
 		message: "OK",
 		text,
