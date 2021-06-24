@@ -2,13 +2,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: computing-svc
+  name: computing-service
   labels:
-    app: computing-server
+    app: computing
 spec:
-  type: ClusterIP
   selector:
-    app: computing-server
+    app: computing
   ports:
     - port: 3000
       targetPort: 3000
@@ -16,17 +15,17 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: computing-server
+  name: computing
   labels:
-    app: computing-server
+    app: computing
 spec:
   selector:
     matchLabels:
-      app: computing-server
+      app: computing
   template:
     metadata:
       labels:
-        app: computing-server
+        app: computing
     spec:
       containers:
         - name: nginx
@@ -38,8 +37,8 @@ spec:
               cpu: "500m"
           ports:
             - containerPort: 80
-        - name: computing-server
-          image: docker.io/library/computing-server:latest
+        - name: computing
+          image: docker.io/library/computing-service:latest
           imagePullPolicy: Never
           resources:
             limits:
