@@ -1,0 +1,14 @@
+version: "3"
+services:
+  computing-server:
+    build:
+      context: ./app
+
+  nginx-computing-server:
+    restart: always
+    build:
+      context: ./nginx
+    ports:
+      - 3000:80
+    links:
+      - computing-server
