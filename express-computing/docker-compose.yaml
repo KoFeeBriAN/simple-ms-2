@@ -1,7 +1,0 @@
-version: "3"
-services:
-  computing-server:
-    image: kofeebrian/computing-service:v1
-    container_name: computing-service
-    build:
-      context: ./app

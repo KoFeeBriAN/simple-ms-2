@@ -1,0 +1,35 @@
+version: "3"
+services:
+  computing-server:
+    image: kofeebrian/computing-service:v1
+    container_name: computing-service
+    build:
+      context: ./express-computing/app
+    restart: on-failure
+
+  redis-client:
+    image: kofeebrian/redis-client:v1
+    container_name: redis-client
+    build:
+      context: ./express-redis-client/app
+    depends_on:
+      - redis
+    environment:
+      - REDIS_PORT=6379
+
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - 6379:6379
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx-gateway
+    restart: always
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    command: [nginx-debug, "-g", "daemon off;"]
+    ports:
+      - 80:80
+      - 443:443

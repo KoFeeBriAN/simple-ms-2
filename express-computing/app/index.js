@@ -1,6 +1,7 @@
 "use strict";
 
 const express = require("express");
+const axios = require("axios");
 const app = express();
 
 const port = process.env.PORT || 3000;
@@ -21,9 +22,16 @@ app.post(`/`, async (req, res) => {
 		return res.status(400).json({ text, word, result: null, message: "Bad request" });
 
 	let result;
-	result = await fetch(`http:redis-client/${text}`);
-	result = result.json();
-	if (result?.data) {
+	result = await axios.post(`http://redis-client:4000/get`, {
+		headers: {
+			"Content-Type": "application/json",
+		},
+		data: {
+			key: text,
+		},
+	});
+
+	if (result?.data.message !== "OK") {
 		res.status(200).json({
 			message: "From cache",
 			text,
@@ -34,22 +42,21 @@ app.post(`/`, async (req, res) => {
 
 	result = text.match(new RegExp(word, "g")).length;
 
-	await fetch(`http:redis-client/`, {
-		method: "POST",
+	await axios.post(`http://redis-client:4000/set`, {
 		headers: {
 			"Content-Type": "application/json",
 		},
-		body: JSON.stringify({
+		data: {
 			key: text,
-			value: result,
-		}),
+			value: result.data,
+		},
 	});
 
 	res.status(200).json({
 		message: "OK",
 		text,
 		word,
-		result,
+		result: result.data,
 	});
 });
 

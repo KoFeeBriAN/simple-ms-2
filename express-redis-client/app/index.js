@@ -1,10 +1,10 @@
 "use strict";
 
 const express = require("express");
-const crypto = requrie("crypto-js");
+const crypto = require("crypto-js");
 const app = express();
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 4000;
 
 const client = require("redis").createClient(process.env.REDIS_PORT, "redis");
 client.on("connect", () => console.log("Connected to redis"));
@@ -16,8 +16,8 @@ app.get(`/health`, (_, res) => {
 	res.send(`OK`);
 });
 
-app.get(`/:key`, (req, res) => {
-	const key = req.params.key;
+app.post(`/get`, (req, res) => {
+	const { key } = req.body;
 	const hashedKey = crypto.SHA256(key);
 	client.get(hashedKey, (error, data) => {
 		if (error) {
@@ -27,7 +27,7 @@ app.get(`/:key`, (req, res) => {
 	});
 });
 
-app.post(`/`, (req, res) => {
+app.post(`/set`, (req, res) => {
 	const { key, value } = req.body;
 	const hashedKey = crypto.SHA256(key);
 	client.setex(hashedKey, 60, value, (error, reply) => {
