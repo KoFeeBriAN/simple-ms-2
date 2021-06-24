@@ -22,41 +22,44 @@ app.post(`/`, async (req, res) => {
 		return res.status(400).json({ text, word, result: null, message: "Bad request" });
 
 	let result;
-	result = await axios.post(`http://redis-client:4000/get`, {
-		headers: {
-			"Content-Type": "application/json",
-		},
-		data: {
+	const response = await axios.post(
+		`http://redis-client:4000/get`,
+		{
 			key: text,
 		},
-	});
+		{
+			headers: {
+				"Content-Type": "application/json",
+			},
+		}
+	);
 
-	if (result?.data.message !== "OK") {
+	if (response?.data?.message !== "OK") {
 		res.status(200).json({
 			message: "From cache",
 			text,
 			word,
-			result: result.data,
+			result: response.data,
 		});
 	}
 
 	result = text.match(new RegExp(word, "g")).length;
 
-	await axios.post(`http://redis-client:4000/set`, {
-		headers: {
-			"Content-Type": "application/json",
-		},
-		data: {
-			key: text,
-			value: result.data,
-		},
-	});
+	await axios.post(
+		`http://redis-client:4000/set`,
+		{ key: text, value: result },
+		{
+			headers: {
+				"Content-Type": "application/json",
+			},
+		}
+	);
 
 	res.status(200).json({
 		message: "OK",
 		text,
 		word,
-		result: result.data,
+		result: result,
 	});
 });
 
