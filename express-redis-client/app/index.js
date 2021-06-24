@@ -1,7 +1,7 @@
 "use strict";
 
 const express = require("express");
-const crypto = require("crypto-js");
+const cors = require("cors");
 const app = express();
 
 const port = process.env.PORT || 4000;
@@ -10,6 +10,7 @@ const client = require("redis").createClient(process.env.REDIS_PORT, "redis");
 client.on("connect", () => console.log("Connected to redis"));
 client.on("error", (err) => "Redis error " + err);
 
+app.use(cors());
 app.use(express.json());
 
 app.get(`/health`, (_, res) => {
@@ -18,10 +19,17 @@ app.get(`/health`, (_, res) => {
 
 app.post(`/get`, (req, res) => {
 	const { key } = req.body;
-	const hashedKey = crypto.SHA256(key);
-	client.get(hashedKey, (error, data) => {
+	console.log("key", key);
+
+	const buff = Buffer.from(key);
+	const base64 = buff.toString("base64");
+	console.log("key base64", base64);
+
+	client.get(base64, (error, data) => {
 		if (error) {
-			return res.status(400).json({ message: "Something wrong!", error });
+			return res.status(500).json({ message: "Error", error });
+		} else if (!data) {
+			return res.status(404).json({ message: "Not Found", data: null });
 		}
 		return res.status(200).json({ message: "OK", data });
 	});
@@ -29,12 +37,16 @@ app.post(`/get`, (req, res) => {
 
 app.post(`/set`, (req, res) => {
 	const { key, value } = req.body;
-	const hashedKey = crypto.SHA256(key);
-	client.setex(hashedKey, 60, value, (error, reply) => {
+
+	const buff = Buffer.from(key);
+	const base64 = buff.toString("base64");
+	console.log("key base64", base64);
+
+	client.setex(base64, 60, value, (error, reply) => {
 		if (error) {
-			return res.status(400).json({ message: "Error", error });
+			return res.status(500).json({ message: "Error", error });
 		}
-		return res.status(200).json({ message: reply });
+		return res.status(200).json({ message: reply, key: base64, value });
 	});
 });
 
