@@ -1,14 +1,14 @@
 version: "3"
 services:
   computing-server:
-    image: kofeebrian/computing-service:v1
+    image: kofeebrian/computing-service:local
     container_name: computing-service
     build:
       context: ./express-computing/app
     restart: on-failure
 
   redis-client:
-    image: kofeebrian/redis-client:v1
+    image: kofeebrian/redis-client:local
     container_name: redis-client
     build:
       context: ./express-redis-client/app

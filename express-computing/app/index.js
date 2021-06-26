@@ -28,7 +28,7 @@ app.post(`/`, async (req, res) => {
 	let response;
 	try {
 		// Check in Cache
-		response = await axios.post(`http://redis-client:4000/get`, {
+		response = await axios.post(`http://localhost:4000/get`, {
 			key: text + " " + word,
 		});
 
@@ -54,7 +54,7 @@ app.post(`/`, async (req, res) => {
 
 	try {
 		// Save to Cache
-		response = await axios.post(`http://redis-client:4000/set`, {
+		response = await axios.post(`http://localhost:4000/set`, {
 			key: text + " " + word,
 			value: result,
 		});

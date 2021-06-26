@@ -6,7 +6,7 @@ const app = express();
 
 const port = process.env.PORT || 4000;
 
-const client = require("redis").createClient(process.env.REDIS_PORT, "redis");
+const client = require("redis").createClient(process.env.REDIS_PORT, process.env.REDIS_HOST);
 client.on("connect", () => console.log("Connected to redis"));
 client.on("error", (err) => "Redis error " + err);
 

@@ -73,7 +73,7 @@ spec:
               subPath: nginx.conf
               readOnly: true
         - name: computing
-          image: kofeebrian/computing-service:v1
+          image: kofeebrian/computing-service:local
           imagePullPolicy: IfNotPresent
           resources:
             limits:
@@ -81,6 +81,37 @@ spec:
               cpu: "500m"
           ports:
             - containerPort: 3000
+              name: computing
+        # - name: redis-client
+        #   image: kofeebrian/redis-client:local
+        #   imagePullPolicy: IfNotPresent
+        #   env:
+        #     - name: DOCKER_API_VERSION
+        #       value: "1.40"
+        #     - name: REDIS_PORT
+        #       value: "6379"
+        #     - name: REDIS_HOST
+        #       value: localhost
+        #   resources:
+        #     limits:
+        #       memory: "128Mi"
+        #       cpu: "500m"
+        #   ports:
+        #     - containerPort: 4000
+        #       name: redis-client
+        - name: redis
+          image: redis:latest
+          resources:
+            limits:
+              cpu: 100m
+              memory: 500Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
+          ports:
+            - containerPort: 6379
+              name: redis
+
       volumes:
         - name: nginx-conf
           configMap:
